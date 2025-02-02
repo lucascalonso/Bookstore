@@ -1,12 +1,27 @@
 package com.lucascorreia;
 
-import com.lucascorreia.dao.*;
-import com.lucascorreia.model.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Map;
+
+import com.lucascorreia.dao.ClienteDAO;
+import com.lucascorreia.dao.FaturaDAO;
+import com.lucascorreia.dao.ItemDePedidoDAO;
+import com.lucascorreia.dao.ItemFaturadoDAO;
+import com.lucascorreia.dao.LivroDAO;
+import com.lucascorreia.dao.PedidoDAO;
+import com.lucascorreia.model.Cliente;
+import com.lucascorreia.model.Fatura;
+import com.lucascorreia.model.ItemDePedido;
+import com.lucascorreia.model.ItemFaturado;
+import com.lucascorreia.model.Livro;
+import com.lucascorreia.model.Pedido;
 import com.lucascorreia.util.FabricaDeDaos;
 import com.lucascorreia.util.TestarSistema;
-
-import java.io.*;
-import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
@@ -15,7 +30,7 @@ public class Main {
 
         boolean continua = true;
         while (continua) {
-            System.out.println('\n' + "========================================================");
+            System.out.println("========================================================");
             System.out.println("1 - Tratar Clientes.");
             System.out.println("2 - Tratar Livros.");
             System.out.println("3 - Tratar Pedidos.");

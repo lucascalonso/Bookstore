@@ -1,13 +1,27 @@
 package com.lucascorreia;
 
-import com.lucascorreia.exception.*;
-import com.lucascorreia.model.*;
+import java.util.List;
+
+import com.lucascorreia.exception.ClienteNaoEncontradoException;
+import com.lucascorreia.exception.DataHoraInvalidaException;
+import com.lucascorreia.exception.FaturaCanceladaException;
+import com.lucascorreia.exception.FaturaNaoEncontradaException;
+import com.lucascorreia.exception.ItemFaturadoException;
+import com.lucascorreia.exception.NadaAFaturarException;
+import com.lucascorreia.exception.NaoPodeCancelarFaturaException;
+import com.lucascorreia.exception.NaoPodeFaturarException;
+import com.lucascorreia.exception.PedidoCanceladoException;
+import com.lucascorreia.exception.PedidoNaoEncontradoException;
+import com.lucascorreia.model.Cliente;
+import com.lucascorreia.model.Fatura;
+import com.lucascorreia.model.ItemDePedido;
+import com.lucascorreia.model.ItemFaturado;
+import com.lucascorreia.model.Livro;
+import com.lucascorreia.model.Pedido;
 import com.lucascorreia.service.ClienteService;
 import com.lucascorreia.service.FaturaService;
 import com.lucascorreia.service.LivroService;
 import com.lucascorreia.service.PedidoService;
-
-import java.util.*;
 
 public class PrincipalFatura {
 
@@ -144,8 +158,9 @@ public class PrincipalFatura {
                     int mes = Console.readInt("Digite o mês:");
                     int ano = Console.readInt("Digite o ano:");
 
-                    List<Map<String, Object>> relatorio = faturaService.listarProdutosFaturadosPorMesAno(mes, ano);
-                    faturaService.imprimirRelatorioProdutosFaturados(relatorio);
+                    for(String linha:faturaService.RelatorioTres(mes,ano)){
+                        System.out.println(linha);
+                    }
                 }
 
                 case 8 -> continua = false;
