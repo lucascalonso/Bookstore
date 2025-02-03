@@ -1,9 +1,10 @@
 package com.lucascorreia.service;
-import com.lucascorreia.dao.LivroDAO;
-import com.lucascorreia.util.FabricaDeDaos;
-import com.lucascorreia.model.Livro;
-import com.lucascorreia.exception.LivroNaoEncontradoException;
 import java.util.List;
+
+import com.lucascorreia.dao.LivroDAO;
+import com.lucascorreia.exception.LivroNaoEncontradoException;
+import com.lucascorreia.model.Livro;
+import com.lucascorreia.util.FabricaDeDaos;
 
 public class LivroService {
 
@@ -20,7 +21,7 @@ public class LivroService {
         if (livro != null) {
             return livro;
         }
-        throw new LivroNaoEncontradoException("Livro não existe.");
+        throw new LivroNaoEncontradoException("Livro inexistente!");
 
     }
 
@@ -30,7 +31,7 @@ public class LivroService {
             livroDAO.remover(id);
             return livro;
         }
-        throw new LivroNaoEncontradoException("Livro não existe.");
+        throw new LivroNaoEncontradoException("Livro inexistente!");
     }
 
     public List<Livro> recuperarTodosOsLivrosOrdenados(){

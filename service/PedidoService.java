@@ -1,15 +1,19 @@
 package com.lucascorreia.service;
-import com.lucascorreia.dao.ItemDePedidoDAO;
-import com.lucascorreia.dao.PedidoDAO;
-import com.lucascorreia.model.*;
-import com.lucascorreia.exception.ItemDePedidoNaoEncontradoException;
-import com.lucascorreia.exception.NaoPodeCancelarPedidoException;
-import com.lucascorreia.util.FabricaDeDaos;
-import com.lucascorreia.exception.PedidoNaoEncontradoException;
-import com.lucascorreia.util.InformaEmail;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.lucascorreia.dao.ItemDePedidoDAO;
+import com.lucascorreia.dao.PedidoDAO;
+import com.lucascorreia.exception.ItemDePedidoNaoEncontradoException;
+import com.lucascorreia.exception.NaoPodeCancelarPedidoException;
+import com.lucascorreia.exception.PedidoNaoEncontradoException;
+import com.lucascorreia.model.Cliente;
+import com.lucascorreia.model.Fatura;
+import com.lucascorreia.model.ItemDePedido;
+import com.lucascorreia.model.ItemFaturado;
+import com.lucascorreia.model.Pedido;
+import com.lucascorreia.util.FabricaDeDaos;
+import com.lucascorreia.util.InformaEmail;
 
 public class PedidoService {
     private final PedidoDAO pedidoDAO =FabricaDeDaos.getDAO(PedidoDAO.class);
@@ -26,10 +30,10 @@ public class PedidoService {
 
     public Pedido remover(int id){
         Pedido pedido = pedidoDAO.recuperarPorId(id);
-        List<ItemDePedido>itemDePedidos=pedido.getItemDePedido();
+        List<ItemDePedido> itemDePedidos = pedido.getItemDePedido();
 
         if (pedido == null) {
-            throw new PedidoNaoEncontradoException("Pedido inexistente.");
+            throw new PedidoNaoEncontradoException("Pedido inexistente!");
         }else{
 
             for(ItemDePedido itens : itemDePedidos){
@@ -64,7 +68,7 @@ public class PedidoService {
     public ItemDePedido removerItemDePedido(int id) {
         ItemDePedido itemDePedido = itemDePedidoDAO.recuperarPorId(id);
         if (itemDePedido == null) {
-            throw new ItemDePedidoNaoEncontradoException("Item de Pedido não encontrado");
+            throw new ItemDePedidoNaoEncontradoException("Item de Pedido não encontrado!");
         }
         itemDePedidoDAO.remover(id);
         return itemDePedido;
@@ -74,12 +78,12 @@ public class PedidoService {
         Pedido pedido= pedidoDAO.recuperarPorId(id);
 
         if(pedido== null){
-            throw new PedidoNaoEncontradoException("Pedido não encontrado");
+            throw new PedidoNaoEncontradoException("Pedido não encontrado!");
         }
 
         Cliente umCliente = pedido.getCliente();
-        List<Fatura>faturas = umCliente.getFaturas();
-        List<Fatura>faturasNaoCanceladas = new ArrayList<>();
+        List<Fatura> faturas = umCliente.getFaturas();
+        List<Fatura> faturasNaoCanceladas = new ArrayList<>();
         List<ItemDePedido>itensDePedido = pedido.getItemDePedido();
 
         for(Fatura fatura:faturas){
@@ -107,7 +111,7 @@ public class PedidoService {
                 break;
         }
         if(flag){
-            throw new NaoPodeCancelarPedidoException("O Pedido não possui todas faturas canceladas ou já faturou");
+            throw new NaoPodeCancelarPedidoException("O Pedido não possui todas faturas canceladas ou já foi faturado!");
         }else{
             pedido.setDataCancelamento(dataCancelamento);
             pedido.setStatus("Cancelada");
@@ -119,7 +123,7 @@ public class PedidoService {
     public Pedido recuperarPedidoPorId(int id) {
         Pedido pedido = pedidoDAO.recuperarPorId(id);
         if (pedido == null) {
-            throw new PedidoNaoEncontradoException("Pedido inexistente.");
+            throw new PedidoNaoEncontradoException("Pedido inexistente!");
         }
         return pedido;
     }
@@ -127,7 +131,7 @@ public class PedidoService {
     public ItemDePedido recuperarPorId(int id) {
         ItemDePedido itemDePedido = itemDePedidoDAO.recuperarPorId(id);
         if (itemDePedido == null) {
-            throw new ItemDePedidoNaoEncontradoException("Item de Pedido inexistente");
+            throw new ItemDePedidoNaoEncontradoException("Item de Pedido inexistente!");
         }
         return itemDePedido;
     }

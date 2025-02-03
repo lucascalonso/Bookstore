@@ -1,14 +1,17 @@
 package com.lucascorreia.util;
 
+import java.util.ArrayList;
+import java.util.List;
 
-import com.lucascorreia.model.*;
+import com.lucascorreia.model.Cliente;
+import com.lucascorreia.model.Fatura;
+import com.lucascorreia.model.ItemDePedido;
+import com.lucascorreia.model.Livro;
+import com.lucascorreia.model.Pedido;
 import com.lucascorreia.service.ClienteService;
 import com.lucascorreia.service.FaturaService;
 import com.lucascorreia.service.LivroService;
 import com.lucascorreia.service.PedidoService;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TestarSistema {
         static LivroService livroService = new LivroService();
@@ -207,15 +210,15 @@ public class TestarSistema {
                 System.out.println(e.getMessage());
             }
 
-            System.out.println("21) Relatório 1:");
+            System.out.println("21) Relatório 1: Faturas do Livro 1 para Janeiro de 2025:");
             for(String linha:faturaService.RelatorioUm(livroService.recuperarPorId(1),1,2025)){
                 System.out.println(linha);
             }
-            System.out.println("22) Relatório 2:");
+            System.out.println("22) Relatório 2: Livros nunca faturados:");
             for(Livro livro:faturaService.RelatorioDois()){
                 System.out.println(livro.toString());
             }
-            System.out.println("23) Relatório 3:");
+            System.out.println("23) Relatório 3: Livros faturados em Fevereiro de 2025:");
             for(String linha:faturaService.RelatorioTres(2,2025)){
                 System.out.println(linha);
             }

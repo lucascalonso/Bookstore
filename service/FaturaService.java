@@ -1,25 +1,36 @@
 package com.lucascorreia.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
 import com.lucascorreia.dao.FaturaDAO;
 import com.lucascorreia.dao.ItemDePedidoDAO;
 import com.lucascorreia.dao.ItemFaturadoDAO;
-import com.lucascorreia.exception.*;
-import com.lucascorreia.model.*;
+import com.lucascorreia.exception.FaturaCanceladaException;
+import com.lucascorreia.exception.FaturaNaoEncontradaException;
+import com.lucascorreia.exception.ItemFaturadoException;
+import com.lucascorreia.exception.NaoPodeCancelarFaturaException;
+import com.lucascorreia.exception.NaoPodeFaturarException;
+import com.lucascorreia.exception.PedidoNaoEncontradoException;
+import com.lucascorreia.model.Cliente;
+import com.lucascorreia.model.Fatura;
+import com.lucascorreia.model.ItemDePedido;
+import com.lucascorreia.model.ItemFaturado;
+import com.lucascorreia.model.Livro;
+import com.lucascorreia.model.Pedido;
 import com.lucascorreia.util.FabricaDeDaos;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 public class FaturaService {
 
     private static final LivroService livroService = new LivroService();
-
     private final FaturaDAO FaturaDAO =FabricaDeDaos.getDAO(FaturaDAO.class);
-
     private final ItemFaturadoDAO itemFaturadoDAO = FabricaDeDaos.getDAO(ItemFaturadoDAO.class);
-
     private final ItemDePedidoDAO itemDePedidoDAO = FabricaDeDaos.getDAO(ItemDePedidoDAO.class);
-
 
     public Fatura faturar(Pedido pedido, String data){
         int total = 0;
@@ -34,7 +45,7 @@ public class FaturaService {
             int i = 0;
             List<ItemDePedido> itensDePedido = pedido.getItemDePedido();
 
-            while (i<itensDePedido.size()) {
+            while (i < itensDePedido.size()) {
                 ItemDePedido itemPedido = itensDePedido.get(i);
                 Livro livro = itemPedido.getPegaLivro();
                 int estoqueLivro = livro.getQuant_est();
@@ -54,7 +65,7 @@ public class FaturaService {
                 }
                 i++;
             }
-
+        
         if (itemfaturado.isEmpty()) {
             pedido.setStatus("Não faturado");
             throw new NaoPodeFaturarException("Não foi possível faturar o pedido pois não há estoque de nenhum livro!");
@@ -74,7 +85,7 @@ public class FaturaService {
                 pedido.setStatus("Parcialmente faturado.");
             }
         }
-        return new Fatura(pedido.getCliente(),data, itemfaturado);
+        return new Fatura(pedido.getCliente(),data,itemfaturado);
     }
 
     public Fatura cancelarFatura(Fatura fatura, String data){
@@ -87,7 +98,7 @@ public class FaturaService {
             fatura.setDataCancelamento(data);
             return fatura;
         }
-        throw new NaoPodeCancelarFaturaException("Não é possível cancelar fatura de um cliente com menos 3 pedidos faturados!");
+        throw new NaoPodeCancelarFaturaException("Não é possível cancelar fatura de um cliente com menos de 3 pedidos faturados!");
     }
 
     public Fatura incluir(Fatura fatura){
@@ -186,7 +197,7 @@ public class FaturaService {
             ItemDePedido pedido;
             Livro livro;
 
-            List<Fatura> faturas=FaturaDAO.recuperarTodos();
+            List<Fatura> faturas = FaturaDAO.recuperarTodos();
             if(cliente.getFaturas().size() >=3){
                 for(ItemFaturado itens : itemFaturados){
                     pedido=itens.getItemDePedido();
@@ -227,6 +238,51 @@ public class FaturaService {
         return FaturaDAO.recuperarTodos();
     }
 
+    public ArrayList<String> RelatorioUm(Livro livro, int mes, int ano) {
+        List<ItemFaturado> listaItemFaturado = itemFaturadoDAO.recuperarTodos();
+        ArrayList<String> listaRetorna = new ArrayList<>();
+
+        for (ItemFaturado itemFaturado : listaItemFaturado) {
+            Fatura fatura = itemFaturado.getFatura();
+            int itemMes = fatura.getDataEmissaoObject().getMonthValue();
+            int itemAno = fatura.getDataEmissaoObject().getYear();
+            Livro livroFaturado = itemFaturado.getItemDePedido().getPegaLivro();
+
+            if (mes == itemMes && ano == itemAno && livroFaturado.getId() == livro.getId()) {
+                Pedido pedidoFatura = itemFaturado.getItemDePedido().getPedido();
+                String linha = "Livro " + livroFaturado.getId() + " | " + livroFaturado.getTitulo() +
+                        " | Quantidade: " + itemFaturado.getQtdFaturada() +
+                        " | Fatura Número: " + fatura.getId() +
+                        " | Pedido Número: " + pedidoFatura.getNumPedido() +
+                        " | Data da Fatura: " + fatura.getDataEmissao();
+                listaRetorna.add(linha);
+            }
+        }
+
+        return listaRetorna;
+    }
+
+    public List<Livro> RelatorioDois() {
+        Set<Integer> livrosFaturados = new HashSet<>();
+        List<Fatura>faturas2 = FaturaDAO.recuperarTodos();
+        List<Livro> livros=livroService.recuperarLivros();
+
+        for (Fatura fatura : faturas2) {
+            for (ItemFaturado item : fatura.getItensFaturados()) {
+                livrosFaturados.add(item.getItemDePedido().getPegaLivro().getId());
+            }
+        }
+        List<Livro> livrosNuncaFaturados = new ArrayList<>();
+
+        for (Livro livro : livros) {
+            if (!livrosFaturados.contains(livro.getId())) {
+                livrosNuncaFaturados.add(livro);
+            }
+        }
+
+        return livrosNuncaFaturados;
+    }
+
     public List<String> RelatorioTres(int mes, int ano) {
         List<ItemFaturado> itensFaturados = itemFaturadoDAO.recuperarTodos();
         Map<Integer, Integer> quantidadePorLivro = new HashMap<>();
@@ -256,111 +312,5 @@ public class FaturaService {
             }
         }
         return relatorio;
-    }
-
-    public List<Livro> RelatorioDois() {
-        Set<Integer> livrosFaturados = new HashSet<>();
-        List<Fatura>faturas2 = FaturaDAO.recuperarTodos();
-        List<Livro> livros=livroService.recuperarLivros();
-
-        for (Fatura fatura : faturas2) {
-            for (ItemFaturado item : fatura.getItensFaturados()) {
-                livrosFaturados.add(item.getItemDePedido().getPegaLivro().getId());
-            }
-        }
-        List<Livro> livrosNuncaFaturados = new ArrayList<>();
-
-        for (Livro livro : livros) {
-            if (!livrosFaturados.contains(livro.getId())) {
-                livrosNuncaFaturados.add(livro);
-            }
-        }
-
-        return livrosNuncaFaturados;
-    }
-
-
-
-    public List<Map<String, Object>> listarProdutosFaturadosPorMesAno(int mes, int ano) {
-        Map<Integer, Integer> faturamentoPorLivro = new HashMap<>();
-
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-
-        List<Map<String, Object>> relatorio = null;
-        try {
-            for (Fatura fatura : FaturaDAO.recuperarTodos()) {
-                Date data = sdf.parse(fatura.getDataEmissao());
-
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(data);
-                cal.setTime(data);
-
-                if (cal.get(Calendar.MONTH) + 1 == mes && cal.get(Calendar.YEAR) == ano) {
-                    for (ItemFaturado item : fatura.getItensFaturados()) {
-                        int livroId = item.getItemDePedido().getPegaLivro().getId();
-                        int qtdFaturada = item.getQtdFaturada();
-                        faturamentoPorLivro.put(livroId,
-                                faturamentoPorLivro.getOrDefault(livroId, 0) + qtdFaturada);
-                    }
-                }
-            }
-
-            relatorio = new ArrayList<>();
-            for (Map.Entry<Integer, Integer> entry : faturamentoPorLivro.entrySet()) {
-                Livro livro = livroService.recuperarPorId(entry.getKey());
-                if (livro != null) {
-                    Map<String, Object> registro = new HashMap<>();
-                    registro.put("nomeLivro", livro.getTitulo());
-                    registro.put("qtdFaturada", entry.getValue());
-                    relatorio.add(registro);
-                } else {
-                    System.err.println("Livro não encontrado para o ID: " + entry.getKey());
-                }
-            }
-        } catch (ParseException e) {
-            System.out.println(e.getMessage());
-        }
-
-
-        return relatorio;
-    }
-
-    public ArrayList<String> RelatorioUm(Livro livro, int mes, int ano) {
-        List<ItemFaturado> listaItemFaturado = itemFaturadoDAO.recuperarTodos();
-        ArrayList<String> listaRetorna = new ArrayList<>();
-
-        for (ItemFaturado itemFaturado : listaItemFaturado) {
-            Fatura fatura = itemFaturado.getFatura();
-            int itemMes = fatura.getDataEmissaoObject().getMonthValue();
-            int itemAno = fatura.getDataEmissaoObject().getYear();
-            Livro livroFaturado = itemFaturado.getItemDePedido().getPegaLivro();
-
-            if (mes == itemMes && ano == itemAno && livroFaturado.getId() == livro.getId()) {
-                Pedido pedidoFatura = itemFaturado.getItemDePedido().getPedido();
-                String linha = "Livro " + livroFaturado.getId() + " | " + livroFaturado.getTitulo() +
-                        " | Quantidade: " + itemFaturado.getQtdFaturada() +
-                        " | Fatura Número: " + fatura.getId() +
-                        " | Pedido Número: " + pedidoFatura.getNumPedido() +
-                        " | Data da Fatura: " + fatura.getDataEmissao();
-                listaRetorna.add(linha);
-            }
-        }
-
-        return listaRetorna;
-    }
-
-    public void imprimirRelatorioProdutosFaturados(List<Map<String, Object>> relatorio) {
-        if (relatorio.isEmpty()) {
-            System.out.println("Nenhum produto foi faturado no período especificado!");
-            return;
-        }
-
-        System.out.println("Relatório de Produtos Faturados:");
-        System.out.println("---------------------------------");
-        for (Map<String, Object> registro : relatorio) {
-            System.out.println("Título: " + registro.get("nomeLivro"));
-            System.out.println("Quantidade Faturada: " + registro.get("qtdFaturada"));
-            System.out.println("---------------------------------");
-        }
     }
 }

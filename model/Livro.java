@@ -1,10 +1,10 @@
 package com.lucascorreia.model;
 
-import com.lucascorreia.util.Id;
-
 import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Locale;
+
+import com.lucascorreia.util.Id;
 
 public class Livro implements Serializable{
 

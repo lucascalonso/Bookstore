@@ -1,11 +1,12 @@
 package com.lucascorreia.service;
 
+import java.util.List;
+
 import com.lucascorreia.dao.ClienteDAO;
 import com.lucascorreia.exception.ClienteComPedidoException;
-import com.lucascorreia.model.Cliente;
 import com.lucascorreia.exception.ClienteNaoEncontradoException;
+import com.lucascorreia.model.Cliente;
 import com.lucascorreia.util.FabricaDeDaos;
-import java.util.List;
 
 public class ClienteService {
 
@@ -24,14 +25,14 @@ public class ClienteService {
         if (cliente != null) {
             if(cliente.getPedidos().isEmpty()){
                 clienteDAO.remover(id);
-                System.out.println('\n' + "Cliente removido!");
+                System.out.println('\n' + "Cliente removido com sucesso!");
                 return cliente;
             }else{
-                throw new ClienteComPedidoException("O cliente possui um pedido,  não pode ser removido");
+                throw new ClienteComPedidoException("O cliente possui pedidos em aberto. Não pode ser removido!");
             }
 
         }
-        throw new ClienteNaoEncontradoException("Cliente não existe.");
+        throw new ClienteNaoEncontradoException("Cliente inexistente!");
     }
 
     public Cliente recuperarPorId(int id) {
@@ -39,7 +40,7 @@ public class ClienteService {
         if (cliente != null) {
             return cliente;
         }
-        throw new ClienteNaoEncontradoException("Cliente não existe.");
+        throw new ClienteNaoEncontradoException("Cliente inexistente!");
     }
 
 
