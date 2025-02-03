@@ -1,14 +1,21 @@
 package com.lucascorreia;
 
-import com.lucascorreia.exception.*;
-import com.lucascorreia.model.*;
-import com.lucascorreia.service.ClienteService;
-import com.lucascorreia.service.LivroService;
-import com.lucascorreia.service.PedidoService;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import com.lucascorreia.exception.ClienteNaoEncontradoException;
+import com.lucascorreia.exception.DataHoraInvalidaException;
+import com.lucascorreia.exception.ItemDePedidoNaoEncontradoException;
+import com.lucascorreia.exception.LivroNaoEncontradoException;
+import com.lucascorreia.exception.NaoPodeCancelarPedidoException;
+import com.lucascorreia.exception.PedidoNaoEncontradoException;
+import com.lucascorreia.model.Cliente;
+import com.lucascorreia.model.ItemDePedido;
+import com.lucascorreia.model.Pedido;
+import com.lucascorreia.service.ClienteService;
+import com.lucascorreia.service.LivroService;
+import com.lucascorreia.service.PedidoService;
 
 public class PrincipalPedido {
     private static final PedidoService pedidoService = new PedidoService();
@@ -51,7 +58,7 @@ public class PrincipalPedido {
                             System.out.println("Livro " + livroService.recuperarPorId(idLivro).getTitulo() + " adicionado ao pedido!");
 
                             item.setPrecoCobrado(livroService.recuperarPorId(idLivro).getPrecoUnitario() * quantLivros);
-                            String pedindo = Console.readLine("Deseja parar de pedir? N ou n para parar");
+                            String pedindo = Console.readLine("Deseja inserir outro livro no pedido? N ou n para parar.");
                             if (Objects.equals(pedindo, "n") || Objects.equals(pedindo, "N")) {
                                 fazerPedido = false;
                             }
@@ -84,9 +91,9 @@ public class PrincipalPedido {
                 case 3 -> {
                     int idCancelaPedido = Console.readInt("Digite o id do pedido a ser cancelado:");
                     try {
-                        String dataCancelamento = Console.readLine("Digite a data do Cancelamento (DD/MM/AAAA HH:MM:SS):");
+                        String dataCancelamento = Console.readLine("Digite a data de cancelamento (DD/MM/AAAA HH:MM:SS):");
                         pedidoService.alterar(idCancelaPedido, dataCancelamento);
-                        System.out.println("Pedido cancelado com sucesso.");
+                        System.out.println("Pedido cancelado com sucesso!");
                     } catch (PedidoNaoEncontradoException | NaoPodeCancelarPedidoException | DataHoraInvalidaException e) {
                         System.out.println(e.getMessage());
                     }
@@ -97,10 +104,10 @@ public class PrincipalPedido {
                     try {
                         Cliente umCliente = clienteService.recuperarPorId(idCliente);
                         if (umCliente.getPedidos().isEmpty()) {
-                            System.out.println("Não há pedidos para este cliente.");
+                            System.out.println("Não há pedidos para este cliente!");
                         } else {
-                            for (Pedido olhaPedidos : umCliente.getPedidos()) {
-                                System.out.println(olhaPedidos);
+                            for (Pedido iterPedidos : umCliente.getPedidos()) {
+                                System.out.println(iterPedidos);
                             }
                         }
                     } catch (ClienteNaoEncontradoException e) {
@@ -110,7 +117,7 @@ public class PrincipalPedido {
 
                 case 5 -> continua = false;
 
-                default -> System.out.println("Opção inválida.");
+                default -> System.out.println("Opção inválida!");
             }
         }
     }
